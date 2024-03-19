@@ -129,14 +129,14 @@ for i in range(0,sim_length-1):
     UTotal[i+1]=U1
 
     # Calcula novos estados no sistema de malha aberta (intervalo: Ts/30)
-    estados=suporte.espaco_de_estados(estados,U1)
+    estados=suporte.novos_estados_malha_aberta(estados,U1)
     estadosTotal[i+1][0:len(estados)]=estados
     # print(i)
 
     
 # Plot the world
-plt.plot(X_ref,phi1,'b',linewidth=2,label='Trajetoria')
-plt.plot(X_ref,estadosTotal[:,3],'--r',linewidth=2,label='Posição do Carro')
+plt.plot(X_ref,phi1_ref,'b',linewidth=2,label='Trajetoria')
+plt.plot(X_ref,estadosTotal[:,1],'--r',linewidth=2,label='Posição do Carro')
 plt.xlabel('x-posição [m]',fontsize=15)
 plt.ylabel('y-posição [m]',fontsize=15)
 plt.grid(True)
@@ -155,16 +155,16 @@ plt.grid(True)
 plt.legend(loc='upper right',fontsize='small')
 
 plt.subplot(3,1,2)
-plt.plot(t,phi1_ref,'b',linewidth=2,label='Ângulo de guinada_ref')
-plt.plot(t,estadosTotal[:,1],'--r',linewidth=2,label='Ângulo de guinada do carro')
+plt.plot(t,phi1_ref,'b',linewidth=2,label='Ângulo do pêndulo inferior_ref')
+plt.plot(t,estadosTotal[:,1],'--r',linewidth=2,label='Ângulo d pêndulo inferior')
 plt.xlabel('t-time [s]',fontsize=15)
 plt.ylabel('psi_ref-posição rad]',fontsize=15)
 plt.grid(True)
 plt.legend(loc='center right',fontsize='small')
 
 plt.subplot(3,1,3)
-plt.plot(t,phi2_ref,'b',linewidth=2,label='Y_ref posição')
-plt.plot(t,estadosTotal[:,3],'--r',linewidth=2,label='posição Y carrp')
+plt.plot(t,phi2_ref,'b',linewidth=2,label='pêndulo superior')
+plt.plot(t,estadosTotal[:,2],'--r',linewidth=2,label='pêndulo superior')
 plt.xlabel('t-time [s]',fontsize=15)
 plt.ylabel('y-posição [m]',fontsize=15)
 plt.grid(True)

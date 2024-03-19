@@ -272,7 +272,7 @@ class DadoSuporteDpi:
         sub_loop = 30   # Fatia Ts em 30 pedaços
         for i in range(0,sub_loop):
             # Computa as derivadas dos estados
-            X_dot= X_dot
+            X_dot = X_dot
             phi1_dot = phi1_dot
             phi2_dot = phi2_dot
             X_dot_dot = (A1*A3)/A0*phi1 +(A1*A6)/(A0)*phi2 + (B1/A0)*U1
