@@ -133,7 +133,7 @@ for i in range(0,sim_length-1):
     estadosTotal[i+1][0:len(estados)]=estados
     # print(i)
 
-    
+print(UTotal)
 # Plot the world
 plt.plot(X_ref,phi1_ref,'b',linewidth=2,label='Trajetoria')
 plt.plot(X_ref,estadosTotal[:,1],'--r',linewidth=2,label='Posição do Carro')
