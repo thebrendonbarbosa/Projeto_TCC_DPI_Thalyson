@@ -22,22 +22,22 @@ J2 = 0.00083
 Ts = 0.01
 l = 0.45
 
-A01 =-J1*J2*(m*m1*m2)-2*m2*l2*l2*J1*(m+m1+m2)-J2*l1*l1*(m*m1+2*m*m2+m1*m2)
-A02 =  2*l1*l1*m2*(J2*m2-m*l2*l2*m1+3/2 *l2*l2*m1*m2+l2*l2*m2)
+A01 =-J1*J2*(m+m1+m2)-2*m2*l2*l2*J1*(m+m1+(1/2)*m2)-J2*l1*l1*(m*m1+2*m*m2-m1*m2-2*m2*m2)
+A02 =  -2*l1*l1*l2*l2*m2*(m*m1-3/2 *m1*m2 -m2*m2)
 A0 = A01 + A02
 
 A1 = g*l1*(m1+2*m2)
 A2 = g*l2*m2
 
-A3 = -l1*l1*m2*(2*J2+2*l2*l2*m+J2*m1/m2)-J1*(J2+2*l2*l2*m2)
+A3 = -J2*l1*(m1+2*m2)-2*l1*l2*l2*m2*(m1+m2)
 A4 = -J2*(m+m1+m2)-2*l2*l2*m2*(m+m1+ 1/2*m2)
 A5 = l1*l2*m2*(2*m+m1)
 A6 = l2*m2*(l1*l1*m1+2*l1*l1*m2-J1)
 A7 = l1*l2*m2*(2*m+m1)
-A8 = -J1*(m+m1+m2)-l1*l1*m1*(m*m1/m2 +2*m -m1-2*m2)
+A8 = -J1*(m+m1+m2)-l1*l1*m2*(m*m1/m2 +2*m -m1-2*m2)
 
 B1 = -l1*l1*m2*(2*J2+2*l2*l2*m+J2*m1/m2)-J1*(J2+2*l2*l2*m2)
-B2 = -J2*l1*(m1-2*m2)-2*l1*l2*l2**m2*(m1+m2)
+B2 = -J2*l1*(m1+2*m2)-2*l1*l2*l2*m2*(m1+m2)
 B3 = l2*m2*(l1*l1*m1+2*l1*l1*m2-J1)
 
 
@@ -53,3 +53,4 @@ sys_discrete = control.c2d(sys, Ts, method='zoh')
 
 A_zoh = np.array(sys_discrete.A)
 B_zoh = np.array(sys_discrete.B)
+print(sys)

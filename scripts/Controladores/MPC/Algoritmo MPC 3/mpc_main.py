@@ -20,7 +20,7 @@ def plot_results():
     plt.grid()
 
     plt.subplot(4, 1, 3)
-    plt.plot(ctrl_effort)
+    plt.plot(ctrl_effort[1:])
     plt.ylabel(r"$(u_t)_1$", fontsize=16)
     plt.xticks([t_step for t_step in range(nsim) if t_step % 10 == 0])
     plt.grid()
@@ -88,13 +88,13 @@ x0 = np.array([-1.5, -1., 0.65, 0.5,0.,0.])  # Initial conditions
 xr = np.array([0., 0., 0., 0.,0.,0.])  # Desired states
 xr *= -1
 
-N = 10  # MPC Horizon length
+N = 200  # MPC Horizon length
 
 x = cp.Variable((nx, N+1))
 u = cp.Variable((nu, N))
 x_init = cp.Parameter(nx)
 
-nsim = 70  # Number of simulation timesteps
+nsim = 300  # Number of simulation timesteps
 time = [0.]
 cart_pos = [x0[0]]
 pend1_ang = [x0[1]]
