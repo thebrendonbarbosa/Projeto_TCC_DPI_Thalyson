@@ -31,7 +31,7 @@ from modelo_dpi import modelo_dpi
 
 """ User settings: """
 show_animation = True
-store_animation = False
+store_animation = True
 store_results = False
 
 # Definir obstáculos a evitar (ciclos)
