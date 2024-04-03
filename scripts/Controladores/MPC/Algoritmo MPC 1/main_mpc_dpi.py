@@ -12,14 +12,14 @@ constantes=suporte.constantes
 Ts=constantes['Ts']
 saidas=constantes['saidas'] # número de saídas (psi, Y)
 hz = constantes['hz'] # horizonte de previsao
-x_dot=constantes['x_dot'] # velocidade longitudinal constante
+#x_dot=constantes['x_dot'] # velocidade longitudinal constante
 intervalo_de_tempo=constantes['intervalo_de_tempo'] # duração da manobra
 
 # Gera os sinais de referência
 t=np.arange(0,intervalo_de_tempo+Ts,Ts) # tempo de 0 a 10 segundos, tempo de amostragem (Ts=0,1 segundo)
-r=constantes['r']
-f=constantes['f']
-X_ref, phi1_ref, phi2_ref = suporte.gerador_de_trajetoria(t,r,f)
+#r=constantes['r']
+#f=constantes['f']
+X_ref, phi1_ref, phi2_ref = suporte.gerador_de_trajetoria(t)
 sim_length=len(t) # Número de iterações de controle no loop
 refSignals=np.zeros(len(X_ref)*saidas)
 
@@ -37,7 +37,7 @@ for i in range(0,len(refSignals),saidas):
 # Exemplo: Por favor escreva 0. em vez de 0 ( adicione o ponto para ser float)
 X = 0
 phi1 = 0.1
-phi2 = -0.1
+phi2 = 0.1
 X_dot = 0
 phi1_dot = 0
 phi2_dot = 0
@@ -134,19 +134,20 @@ for i in range(0,sim_length-1):
     # print(i)
 
 print(UTotal)
-# Plot the world
-plt.plot(X_ref,phi1_ref,'b',linewidth=2,label='Trajetoria')
-plt.plot(X_ref,estadosTotal[:,1],'--r',linewidth=2,label='Posição do Carro')
+
+# Plottando
+plt.plot(t,X_ref,'b',linewidth=2,label='Trajetoria')
+plt.plot(t,estadosTotal[:,0],'--r',linewidth=2,label='Posição do Carro')
 plt.xlabel('x-posição [m]',fontsize=15)
 plt.ylabel('y-posição [m]',fontsize=15)
 plt.grid(True)
 plt.legend(loc='upper right',fontsize='small')
-plt.ylim(-13,13) # Scale roads (x & y sizes should be the same to get a realistic picture of the situation)
-#plt.ylim(-X_ref[-1]/5,X_ref[-1]/5) # Scale roads (x & y sizes should be the same to get a realistic picture of the situation)
+#plt.ylim(-13,13) # Scale roads (x & y sizes should be the same to get a realistic picture of the situation)
+plt.ylim(-X_ref[-1]/5,X_ref[-1]/5) # Scale roads (x & y sizes should be the same to get a realistic picture of the situation)
 plt.show()
 
 
-# Plot the the input delta(t) and the outputs: psi(t) and Y(t)
+# Plota a entrada u(t) e as saídas: phi1(t) e phi2(t)
 plt.subplot(3,1,1)
 plt.plot(t,UTotal[:],'r',linewidth=2,label='ângulo do volante')
 plt.xlabel('t-time [s]',fontsize=15)
