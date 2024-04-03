@@ -19,7 +19,7 @@ class DadoSuporteDpi:
         f2 = 0.007
         J1 = 0.00083 
         J2 = 0.00083
-        Ts = 0.01
+        Ts = 0.02
 
         # Parâmetros para a mudança de faixa:: [phi1_ref 0;0 phi2_ref]
             
@@ -214,36 +214,36 @@ class DadoSuporteDpi:
         estados_atual=estados
         novos_estados=estados_atual
 
-        X = estados_atual[0]
+        Xp = estados_atual[0]
         phi1 = estados_atual[1]
         phi2 =estados_atual[2]
-        X_dot = estados_atual[3]
+        Xp_dot = estados_atual[3]
         phi1_dot = estados_atual[4]
         phi2_dot = estados_atual[5]
 
         sub_loop = 30   # Fatia Ts em 30 pedaços
         for i in range(0,sub_loop):
             # Computa as derivadas dos estados
-            X_dot = X_dot
+            Xp_dot = Xp_dot
             phi1_dot = phi1_dot
             phi2_dot = phi2_dot
-            X_dot_dot = -((A1*A3)/A0)*phi1 -((A1*A6)/A0)*phi2 + (B1/A0)*U1
-            phi1_dot_dot = -((A1*A4)/A0)*phi1 -((A1*A7)/A0)*phi2 - (B2/A0)*U1
-            phi2_dot_dot = -((A1*A5)/A0)*phi1 -((A1*A8)/A0)*phi2 + (B3/A0)*U1
+            Xp_dot_dot = -((A1*A3)/A0)*phi1 -((A2*A6)/A0)*phi2 + (B1/A0)*U1
+            phi1_dot_dot = -((A1*A4)/A0)*phi1 -((A2*A7)/A0)*phi2 + (B2/A0)*U1
+            phi2_dot_dot = -((A1*A5)/A0)*phi1 -((A2*A8)/A0)*phi2 + (B3/A0)*U1
 
             # Atualiza os valores de estado com novas derivadas de estado
-            X = X + X_dot*Ts/sub_loop
+            Xp = Xp + Xp_dot*Ts/sub_loop
             phi1 = phi1 + phi1_dot*Ts/sub_loop
             phi2 =phi2 + phi2_dot*Ts/sub_loop
-            X_dot = X_dot+ X_dot_dot*Ts/sub_loop
+            Xp_dot = Xp_dot+ Xp_dot_dot*Ts/sub_loop
             phi1_dot = phi1_dot + phi1_dot_dot*Ts/sub_loop
             phi2_dot = phi2_dot + phi2_dot_dot*Ts/sub_loop
 
     # Pegue os últimos estados
-        novos_estados[0]= X
+        novos_estados[0]= Xp
         novos_estados[1]=phi1
         novos_estados[2]=phi2
-        novos_estados[3]= X_dot
+        novos_estados[3]= Xp_dot
         novos_estados[4]= phi1_dot
         novos_estados[5]= phi2_dot
 

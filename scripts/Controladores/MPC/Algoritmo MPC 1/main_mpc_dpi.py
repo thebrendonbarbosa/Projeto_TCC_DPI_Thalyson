@@ -35,12 +35,12 @@ for i in range(0,len(refSignals),saidas):
 # Se você quiser colocar números aqui, certifique-se de que eles sejam flutuantes e não
 # inteiros. Isso significa que você deve adicionar um ponto aí.
 # Exemplo: Por favor escreva 0. em vez de 0 ( adicione o ponto para ser float)
-X = 0
-phi1 = 0.1
-phi2 = 0.1
-X_dot = 0
-phi1_dot = 0
-phi2_dot = 0
+X = -0.4
+phi1 = 0.7
+phi2 = -0.8
+X_dot = 0.4
+phi1_dot = 0.
+phi2_dot = 0.
 
 estados=np.array([X, phi1, phi2, X_dot, phi1_dot, phi2_dot])
 estadosTotal=np.zeros((len(t),len(estados))) # Acompanhará todos os seus estados durante toda a manobra
