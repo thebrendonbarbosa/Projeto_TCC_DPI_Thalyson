@@ -88,13 +88,13 @@ x0 = np.array([-1.5, -1., 0.65, 0.5,0.,0.])  # Initial conditions
 xr = np.array([0., 0., 0., 0.,0.,0.])  # Desired states
 xr *= -1
 
-N = 200  # MPC Horizon length
+N = 100  # MPC Horizon length
 
 x = cp.Variable((nx, N+1))
 u = cp.Variable((nu, N))
 x_init = cp.Parameter(nx)
 
-nsim = 300  # Number of simulation timesteps
+nsim = 50  # Number of simulation timesteps
 time = [0.]
 cart_pos = [x0[0]]
 pend1_ang = [x0[1]]
