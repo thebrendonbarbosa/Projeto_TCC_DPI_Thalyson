@@ -8,24 +8,24 @@ class DadoSuporteDpi:
         '''Carrega as constantes'''
 
         # Constantes
-        m = 1     # kilograma
-        m1 = 1    # kilograma
-        m2 = 1    # kilograma
-        l1 = 0.05 # metros
-        l2 = 0.05 # metros
+        m = 1.5 #1     # kilograma
+        m1 = 0.4 #1  # kilograma
+        m2 = 0.22 #1   # kilograma
+        l1 = 0.04064 #0.05 # metros
+        l2 = 0.6878 #0.05 # metros
         g = 9.81  # m/s^2
-        f0 = 0.01
-        f1 = 0.007
-        f2 = 0.007
-        J1 = 0.00083 
-        J2 = 0.00083
-        Ts = 0.02
+        f0 = 0.5 #0.01
+        f1 = 0.2 #0.007
+        f2 = 0.2 #0.007
+        J1 = 0.047 #0.00083 
+        J2 = 0.359 #0.00083
+        Ts = 0.01
 
         # Parâmetros para a mudança de faixa:: [phi1_ref 0;0 phi2_ref]
             
         # Pesos matriciais para a função custo (devem ser diagonais)
-        Q=np.matrix('1 0 0;0 5 0; 0 0 5') # pesos para saídas (todas as amostras, exceto a última)
-        S=np.matrix('1 0 0;0 1 0; 0 0 1') # pesos para os ultimos resultados do horizonte de previsao
+        Q=np.matrix('1 0 0;0 10 0; 0 0 15') # pesos para saídas (todas as amostras, exceto a última)
+        S=np.matrix('1 0 0;0 10 0; 0 0 15') # pesos para os ultimos resultados do horizonte de previsao
         R=np.matrix('1') # pesos para entradas (apenas 1 entrada no caso)
 
         saidas = 3  # número de saídas
