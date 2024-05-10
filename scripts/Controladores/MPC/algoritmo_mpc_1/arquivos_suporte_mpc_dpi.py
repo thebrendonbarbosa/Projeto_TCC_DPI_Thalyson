@@ -1,4 +1,6 @@
 import numpy as np
+import math
+import control as ct
 import matplotlib.pyplot as plt
 
 class DadoSuporteDpi:
@@ -8,9 +10,10 @@ class DadoSuporteDpi:
         '''Carrega as constantes'''
 
         # Constantes
+
         m = 1.5 #1     # kilograma
         m1 = 0.4 #1  # kilograma
-        m2 = 0.22 #1   # kilograma
+        m2 = 0.22#1   # kilograma
         l1 = 0.04064 #0.05 # metros
         l2 = 0.6878 #0.05 # metros
         g = 9.81  # m/s^2
@@ -24,20 +27,18 @@ class DadoSuporteDpi:
         # Parâmetros para a mudança de faixa:: [phi1_ref 0;0 phi2_ref]
             
         # Pesos matriciais para a função custo (devem ser diagonais)
-        Q=np.matrix('1 0 0;0 10 0; 0 0 15') # pesos para saídas (todas as amostras, exceto a última)
-        S=np.matrix('1 0 0;0 10 0; 0 0 15') # pesos para os ultimos resultados do horizonte de previsao
-        R=np.matrix('1') # pesos para entradas (apenas 1 entrada no caso)
-
-        saidas = 3  # número de saídas
-        hz = 20 # horizonte de previsao
-        #x_dot=20 # velocidade longitudinal pendulo
-
+        Q=np.matrix('10 0 0;0 500 0;0 0 500') # pesos para saídas (todas as amostras, exceto a última)
+        S=np.matrix('10 0 0;0 500 0;0 0 500') # pesos para os ultimos resultados do horizonte de previsao
+        R=np.matrix('0.001') # pesos para entradas (apenas 1 entrada no caso)
+        saidas = 3 # número de saídas
+        hz = 25 #horizonte de previsao
+      
         # Sinal de referência 
-        #r=4  # amplitude
-        #f=0.01 # frequencia
+        r=4  # amplitude
+        f=1 # frequencia
         intervalo_de_tempo = 10 # [s] - duração de toda a simulação
 
-        #trajetoria = 1
+        trajetoria = 2
 
 
         # simplificação das matrizes:
@@ -60,27 +61,56 @@ class DadoSuporteDpi:
         B2 = -J2*l1*m1-2*J2*l1*m2-l1*l2*l2*m1*m2
         B3 = -J1*l2*m2+l1*l1*l2*m1*m2
 
+
+
+
         self.constantes = {'A01':A01,'A02':A02,'A0':A0,'A1':A1,'A2':A2,'A3':A3,'A4':A4,'A5':A5,'A6':A6,\
             'A7':A7,'A8':A8,'B1':B1,'B2':B2,'B3':B3, 'm':m, 'm1':m1, 'm2':m2, 'g':g, 'l1':l1, 'l2':l2,\
-            'J1':J1, 'J2':J2, 'f0':f0, 'f1':f1, 'f2':f2, 'saidas':saidas,\
-            'Ts':Ts, 'hz':hz, 'Q':Q, 'R':R, 'S':S,'intervalo_de_tempo':intervalo_de_tempo}
+            'J1':J1, 'J2':J2, 'f0':f0, 'f1':f1, 'f2':f2, 'saidas':saidas,'trajetoria':trajetoria,\
+            'Tr':Ts, 'hz':hz, 'Q':Q, 'R':R, 'S':S, 'r':r, 'f':f,\
+            'intervalo_de_tempo':intervalo_de_tempo}
         
         return None
 
-    def gerador_de_trajetoria(self, t):
+
+
+    def gerador_de_trajetoria(self, t, r, f):
         '''Este método cria a trajetória para um carro seguir'''
 
         Ts = self.constantes['Ts']
-        #x_dot = self.constantes['x_dot']
-        #trajetoria = self.constantes['trajetoria']
+        x_dot = self.constantes['x_dot']
+        trajetoria = self.constantes['trajetoria']
+        
 
         # Define o comprimento x, depende da velocidade longitudinal do carro
-        x=np.linspace(0,t[-1],num=len(t)) #[inicio,fim,qtd. de elementos]
+        #x=np.linspace(0,x_dot*t[-1],num=len(t)) #[inicio,fim,qtd de elementos]
+        #x=np.linspace(0,t[-1],num=len(t)) #[inicio,fim,qtd de elementos]
+        xr=np.linspace(0,t[-1],num=len(t)) #[inicio,fim,qtd de elementos]
 
-        # Define trajetorias (Valores desejados)
-        phi1_r = np.zeros_like(x)
-        phi2_r = np.zeros_like(x)
-        
+        # Define trajetorias
+        if trajetoria == 1:
+            x = np.zeros_like(xr)
+            phi1_r = np.zeros_like(xr)
+            phi2_r = np.zeros_like(xr)
+
+
+        elif trajetoria == 2: # Adiciona pertubação
+            x = np.zeros_like(xr)
+            # Condicao inicial 0
+            x[xr < 2] = 0 # 0 de 0s até 5s 
+            # Primeiro degrau
+            #x[(xr >= 2) & (xr < 7)] = -0.5 # passa de para 3 
+            #x[(xr >= 7) & (xr < 12)] = 0.5 # passa de para 3 
+            # Terceiro degrau
+            x[xr >= 2] = -1   
+            phi1_r = np.zeros_like(xr)
+            phi2_r = np.zeros_like(xr)
+            
+        elif trajetoria ==3:
+            x = 5*np.tanh(t-t[1]/2)
+            phi1_r = np.zeros_like(xr)
+            phi2_r = np.zeros_like(xr)
+
         return x,phi1_r,phi2_r
 
     def espaco_de_estados(self):
@@ -88,22 +118,19 @@ class DadoSuporteDpi:
 
         # Constantes
         Ts = self.constantes['Ts']
-        #x_dot=self.constantes['x_dot']
+        x_dot=self.constantes['x_dot']
 
         # Obtem as matrizes de espaço de estado para o controle
         
         A0 = self.constantes['A0']
-
         A1 = self.constantes['A1']
         A2 = self.constantes['A2']
-
         A3 = self.constantes['A3']
         A4 = self.constantes['A4']
         A5 = self.constantes['A5']
         A6 = self.constantes['A6']
         A7 = self.constantes['A7']
         A8 = self.constantes['A8']
-
         B1 = self.constantes['B1']
         B2 = self.constantes['B2']
         B3 = self.constantes['B3']
@@ -209,7 +236,7 @@ class DadoSuporteDpi:
         B1 = self.constantes['B1']
         B2 = self.constantes['B2']
         B3 = self.constantes['B3']
-        #x_dot=self.constantes['x_dot']
+        x_dot=self.constantes['x_dot']
 
         estados_atual=estados
         novos_estados=estados_atual
@@ -246,5 +273,6 @@ class DadoSuporteDpi:
         novos_estados[3]= Xp_dot
         novos_estados[4]= phi1_dot
         novos_estados[5]= phi2_dot
-
+        
         return novos_estados
+    
