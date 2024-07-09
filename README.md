@@ -57,9 +57,7 @@ $$
 \begin{align} 
     \left\{\begin{matrix}
     \ddot{x}(M+m_1+m_2)- \ddot{\phi_1}l_1\cos(\phi_1) \left ( m_1+2m_2 \right) -\ddot{\phi_2}m_2l_2\cos(\phi_2) \nonumber \\ + \dot{\phi_1}^2l_1\sin(\phi_1) \left(m_1+2m_2\right )+\dot{\phi_2}^2m_2l_2\sin(\phi_2) =u-f_0 \dot{x} \\ \\ 
-    
     \ddot{\phi_1} \left (m_1l_1^2 + J_1 +2m_2l_1^2  \right )-\ddot{x} l_1\cos(\phi_1) \left (  m_1+2m_2 \right )   +2\ddot{\phi_2}m_2l_1l_2\cos(\phi_1-\phi_2) \nonumber \\ -2m_2l_1l_2\dot{\phi_2}^2\sin(\phi_2-\phi_1) +m_1gl_1\sin(\phi_1)+2gl_1m_2\sin(\phi_1) =-(f_1 + f_2)\dot{\phi_1} + f_2 \dot{\phi_2}  
-    
     \\
     \\   -m_2\ddot{x}l_2\cos(\phi_2)+(2m_2l_2^2 + J_2)\ddot{\phi_2}+2m_2l_1l_2\ddot{\phi_1}\cos(\phi_2-\phi_1)  - 2\dot{\phi_1}^2 m_2 l_1 l_2\sin(\phi_2-\phi_1) \nonumber \\  - m_2gl_2\sin(\phi_2)   =f_2\dot{\phi_1} - f_2 \dot{\phi_2} 
     \end{matrix}\right. 
@@ -78,7 +76,7 @@ $$
  0& -442,3352 &  147,6419& 0 &  0& 0\\ 
  0& 442,9258 & -344,3010 & 0 &  0&0 
 \end{bmatrix},
-\;
+
 \mathbf{B}=\begin{bmatrix}
 0\\ 
 0\\ 
@@ -86,7 +84,7 @@ $$
 0.7781\\ 
 -10.0133\\ 
 3,3511
-\end{bmatrix},\;
+\end{bmatrix},
     \mathbf{C}= \begin{bmatrix}
 1 &0  & 0 & 0 & 0 &0 \\ 
  0& 1 &  0& 0 &  0&0 \\ 
