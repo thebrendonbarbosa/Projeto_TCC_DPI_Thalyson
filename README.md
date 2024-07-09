@@ -7,10 +7,12 @@
 </p>
 
 <p align="center">
-    <a href="#Introdução"><strong>Protótipo</strong></a>
-  • <a href="#interface-gráfica"><strong>Interface gráfica</strong></a> 
-  • <a href="#firmware"><strong>Firmware</strong></a>
-  • <a href="#gêmeo-digital"><strong>Gêmeo Digital</strong></a>
+    <a href="#Introdução"><strong>Introdução</strong></a>
+  • <a href="#Modelagem"><strong>Modelagem</strong></a> 
+  • <a href="#Controlador-LQR"><strong>Controlador LQR</strong></a>
+  • <a href="#Filtro-de-Kalman"><strong>Filtro de Kalman</strong></a>
+  • <a href="#Controlador-LQG"><strong>Controlador LQG</strong></a>
+  • <a href="#Controlador-Preditivo"><strong>Controlador Preditivo (MPC)</strong></a>
 </p>
 
 <h3  id="techs">Tecnologias</h3>
@@ -98,7 +100,6 @@ $x_0 = [0, 0, 0.1,0,0,0]$
 O sistema apresenta um comportamento oscilatório dos estados observados ao longo do tempo, por conta dessa caracteristica, o sistema é considerado instável.
 
 ## Controlador LQR
-
 
 
 
