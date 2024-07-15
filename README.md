@@ -51,7 +51,7 @@ O pêndulo invertido é um exemplo clássico de um sistema dinâmico instável. 
 
 ## Modelagem matemática
 
-O modelo matemático dos pêndulos é derivado a partir das formulações de Lagrande. Assim, se obtém a equação a seguir.
+O modelo matemático dos pêndulos é derivado a partir das formulações de Lagrange. Assim, se obtém a equação a seguir.
 
 $$
 \begin{align} 
@@ -87,10 +87,7 @@ $$
     \mathbf{C}= \begin{bmatrix}
 1 &0  & 0 & 0 & 0 &0 \\ 
  0& 1 &  0& 0 &  0&0 \\ 
- 0& 0&1  & 0 & 0 & 0\\ 
- 0& 0& 0 & 0 & 0 & 0\\ 
- 0& 0 & 0 & 0 & 0 & 0\\ 
- 0&0  & 0 & 0 & 0 &0 
+ 0& 0&1  & 0 & 0 & 0
 \end{bmatrix}
 \end{align}
 $$
