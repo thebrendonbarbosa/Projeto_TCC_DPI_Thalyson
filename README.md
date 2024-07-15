@@ -96,7 +96,7 @@ $$
 $$
 ### Análise de Malha Aberta
 Resposta inicial do sistema para as seguintes condições inicais:
-$x_0 = [0, 0, 0.1,0,0,0]$
+$x_0 = [0, 0, 0.08,0,0,0]$
 <p align="center">
   <img width="60%" src="utils/imagens/resposta_inicial_malha_aberta.png">
 </p>
