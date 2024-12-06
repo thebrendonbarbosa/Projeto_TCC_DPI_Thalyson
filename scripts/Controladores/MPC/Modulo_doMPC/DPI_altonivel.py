@@ -6,17 +6,22 @@ import do_mpc
 model_type = 'continuous'
 model = do_mpc.model.Model(model_type)
 
-m0 = 0.6  # kg, mass of the cart
-m1 = 0.2  # kg, mass of the first rod
-m2 = 0.2  # kg, mass of the second rod
-L1 = 0.5  # m,  length of the first rod
-L2 = 0.5  # m,  length of the second rod
+m0 = 1  # kg, mass of the cart
+m1 = 1  # kg, mass of the first rod
+m2 = 1  # kg, mass of the second rod
+L1 = 2*0.5  # m,  length of the first rod
+L2 = 2*0.5  # m,  length of the second rod
+
+g=9.81
+f0=0.01
+f1=0.0007
+f2=0.0007
 
 g = 9.80665 # m/s^2, Gravity
 l1 = L1/2 # m,
 l2 = L2/2 # m,
-J1 = (m1 * l1**2) / 3   # Inertia
-J2 = (m2 * l2**2) / 3   # Inertia
+J1 = 0.00083 #(m1 * l1**2) / 3   # Inertia
+J2 = 0.00083#(m2 * l2**2) / 3   # Inertia
 
 h1 = m0 + m1 + m2
 h2 = m1*l1 + m2*L1
@@ -114,7 +119,7 @@ params_simulator = {
     'integration_tool': 'idas',
     'abstol': 1e-8,
     'reltol': 1e-8,
-    't_step': 0.04
+    't_step': 0.01
 }
 
 simulator.set_param(**params_simulator)
@@ -247,5 +252,6 @@ def update(t_ind):
 
 
 anim = FuncAnimation(fig, update, frames=n_steps, repeat=False)
-gif_writer = ImageMagickWriter(fps=60)
-anim.save('anim_dip.gif', writer=gif_writer)
+gif_writer = ImageMagickWriter(fps=30)
+plt.show('anim_dip.gif', writer=gif_writer)
+#anim.save('anim_dip.gif', writer=gif_writer)
