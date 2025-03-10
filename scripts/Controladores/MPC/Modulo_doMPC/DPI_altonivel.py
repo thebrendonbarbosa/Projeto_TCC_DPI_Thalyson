@@ -2,33 +2,41 @@ import numpy as np
 import sys
 from casadi import *
 
+# Add do_mpc to path. This is not necessary if it was installed via pip
+import os
+
+# Import do_mpc package:
 import do_mpc
-model_type = 'continuous'
-model = do_mpc.model.Model(model_type)
 
-m0 = 1  # kg, mass of the cart
-m1 = 1  # kg, mass of the first rod
-m2 = 1  # kg, mass of the second rod
-L1 = 2*0.5  # m,  length of the first rod
-L2 = 2*0.5  # m,  length of the second rod
+model_type = 'continuous' # either 'discrete' or 'continuous'
+model = do_mpc.model.Model(model_type) 
 
-g=9.81
-f0=0.01
-f1=0.0007
-f2=0.0007
+m0 = 1#0.6  # kg, mass of the cart
+m1 = 0.5#0.2  # kg, mass of the first rod
+m2 = 0.5#.2  # kg, mass of the second rod
+L1 = .55  # m,  length of the first rod
+L2 = 0.55  # m,  length of the second rod
 
-g = 9.80665 # m/s^2, Gravity
-l1 = L1/2 # m,
+g = 9.80665 # m/s^2, Gravity 
+
+f0 = 00.1 # Coef. Atrito do carro
+f1 = 0.007 # Coef. atrito do pêndulo inferior
+f2 = 0.007 # Coef. atrito do pêndulo superior
+
+l1 = L1/2 # m,  
 l2 = L2/2 # m,
-J1 = 0.00083 #(m1 * l1**2) / 3   # Inertia
-J2 = 0.00083#(m2 * l2**2) / 3   # Inertia
+J1 = (m1 * l1**2) / 3   # Inertia
+J2 = (m2 * l2**2) / 3   # Inertia
 
 h1 = m0 + m1 + m2
 h2 = m1*l1 + m2*L1
 h3 = m2*l2
-h4 = m1*l1**2 + m2*L1**2 + J1
+
+h4 = m1*l1*l1 + m2*L1*L1 + J1
 h5 = m2*l2*L1
+
 h6 = m2*l2**2 + J2
+
 h7 = (m1*l1 + m2*L1) * g
 h8 = m2*l2*g
 
@@ -49,7 +57,7 @@ model.set_rhs('dtheta', ddtheta)
 
 euler_lagrange = vertcat(
         # 1
-        h1*ddpos+h2*ddtheta[0]*cos(theta[0])+h3*ddtheta[1]*cos(theta[1])
+        h1*ddpos + h2*ddtheta[0]*cos(theta[0])+h3*ddtheta[1]*cos(theta[1])
         - (h2*dtheta[0]**2*sin(theta[0]) + h3*dtheta[1]**2*sin(theta[1]) + u),
         # 2
         h2*cos(theta[0])*ddpos + h4*ddtheta[0] + h5*cos(theta[0]-theta[1])*ddtheta[1]
@@ -61,10 +69,13 @@ euler_lagrange = vertcat(
 
 model.set_alg('euler_lagrange', euler_lagrange)
 
-E_kin_cart = 1 / 2 * m0 * dpos**2
+E_kin_cart = 1/2 * m0 * dpos**2
+
+
 E_kin_p1 = 1 / 2 * m1 * (
     (dpos + l1 * dtheta[0] * cos(theta[0]))**2 +
     (l1 * dtheta[0] * sin(theta[0]))**2) + 1 / 2 * J1 * dtheta[0]**2
+
 E_kin_p2 = 1 / 2 * m2 * (
     (dpos + L1 * dtheta[0] * cos(theta[0]) + l2 * dtheta[1] * cos(theta[1]))**2 +
     (L1 * dtheta[0] * sin(theta[0]) + l2 * dtheta[1] * sin(theta[1]))**
@@ -83,12 +94,11 @@ model.set_expression('E_pot', E_pot)
 model.setup()
 
 mpc = do_mpc.controller.MPC(model)
-
 setup_mpc = {
     'n_horizon': 100,
     'n_robust': 0,
     'open_loop': 0,
-    't_step': 0.04,
+    't_step': 0.03,
     'state_discretization': 'collocation',
     'collocation_type': 'radau',
     'collocation_deg': 3,
@@ -104,12 +114,14 @@ lterm = model.aux['E_kin'] - model.aux['E_pot'] # stage cost
 
 mpc.set_objective(mterm=mterm, lterm=lterm)
 # Input force is implicitly restricted through the objective.
-mpc.set_rterm(force=0.1)
+mpc.set_rterm(force=0.10)
 
-mpc.bounds['lower','_u','force'] = -4
-mpc.bounds['upper','_u','force'] = 4
+mpc.bounds['lower','_u','force'] = -2
+mpc.bounds['upper','_u','force'] = 2
+
 
 mpc.setup()
+
 estimator = do_mpc.estimator.StateFeedback(model)
 
 simulator = do_mpc.simulator.Simulator(model)
@@ -119,7 +131,7 @@ params_simulator = {
     'integration_tool': 'idas',
     'abstol': 1e-8,
     'reltol': 1e-8,
-    't_step': 0.01
+    't_step': 0.03
 }
 
 simulator.set_param(**params_simulator)
@@ -175,7 +187,7 @@ def pendulum_bars(x):
 
     return line_1, line_2
 
-
+    #capture
 
 fig = plt.figure(figsize=(16,9))
 
@@ -196,7 +208,7 @@ for ax in [ax2, ax3, ax4, ax5]:
     ax.yaxis.tick_right()
     if ax != ax5:
         ax.xaxis.set_ticklabels([])
-
+        
 ax5.set_xlabel('time [s]')
 
 mpc_graphics.add_line(var_type='_aux', var_name='E_kin', axis=ax2)
@@ -226,13 +238,13 @@ mpc_graphics.reset_axes()
 
 fig
 
-mpc_graphics.plot_predictions()
-
+#%%capture
+import matplotlib.animation as animation
 
 # Quickly reset the history of the MPC data object.
 mpc.reset_history()
 
-n_steps = 100
+n_steps = 1000
 for k in range(n_steps):
     u0 = mpc.make_step(x0)
     y_next = simulator.make_step(u0)
@@ -249,9 +261,8 @@ def update(t_ind):
     mpc_graphics.plot_results(t_ind)
     mpc_graphics.plot_predictions(t_ind)
     mpc_graphics.reset_axes()
-
+    
 
 anim = FuncAnimation(fig, update, frames=n_steps, repeat=False)
-gif_writer = ImageMagickWriter(fps=30)
-plt.show('anim_dip.gif', writer=gif_writer)
-#anim.save('anim_dip.gif', writer=gif_writer)
+gif_writer = animation.PillowWriter(fps=60)
+anim.save('anim_versDOMPC.gif', writer=gif_writer)
