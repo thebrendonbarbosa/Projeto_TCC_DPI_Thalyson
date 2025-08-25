@@ -16,18 +16,18 @@ class DadoSuporteDpi:
         l1 = 0.05 # Comprimento do centro de massa da haste 1 até a ponta [metros]
         l2 = 0.05 # Comprimento do centro de massa da haste 2 até a ponta [metros]
         g = 9.81  # Aceleração da gravidade [m/s^2]
-        f0 = 0.01 # Coeficiente de atrito do carro
-        f1 = 0.007 # Coeficiente viscoso de amortecimento rotacional do pêndulo inferior
-        f2 = 0.007 # Coeficiente viscoso de amortecimento rotacional do pêndulo superior
+        f0 = 0.0#001 # Coeficiente de atrito do carro
+        f1 = 0.0#007 # Coeficiente viscoso de amortecimento rotacional do pêndulo inferior
+        f2 = 0.0#007 # Coeficiente viscoso de amortecimento rotacional do pêndulo superior
         J1 = 0.00083 # Momento de inércia do pêndulo 1
         J2 = 0.00083 # Momento de inércia do pêndulo 2
         Ts = 0.01 # Peíodo de amostragem [segundos]
 
         # Pesos matriciais para a função custo (devem ser diagonais)[Ajuste por tentativa e erro]
         Q = np.matrix('1 0 0 ;0 1 0 ;0 0 1') # Pesos para saídas (todas as amostras, exceto a última)
-        S = np.matrix('600 0 0 ;0 600 0;0 0 600') # Pesos para os ultimos resultados do horizonte de previsao
+        S = np.matrix('200 0 0 ;0 200 0;0 0 200') # Pesos para os ultimos resultados do horizonte de previsao
         R = np.matrix('0.01') # pesos para entradas (Apenas 1 entrada no caso)
-
+        #R1 = np.matrix('10')
         """
         CONFIGURAÇÃO IDEAL PARA A TRAEJETORIA 1 COM CONDIÇÕES X0 = [ 0 0.1 -0.1] u limite =4
         Q = np.matrix('10 0 0 ;0 10 0 ;0 0 10') # Pesos para saídas (todas as amostras, exceto a última)
@@ -36,16 +36,23 @@ class DadoSuporteDpi:
         """
 
         saidas = 3 # Número de saídas
-        hz = 45 #horizonte de previsao
+        hz = 74#50 #horizonte de previsao
 
         # Sinal de referência 
         r = 4  # amplitude
         f = 1 # frequencia
 
-        intervalo_de_tempo = 10 # [s] - duração de toda a simulação
-        trajetoria = 2 # Escolhe a trajetória do sinal de referencia
+        intervalo_de_tempo = 25 # [s] - duração de toda a simulação
+        trajetoria = 2# Escolhe a trajetória do sinal de referencia
 
         # Simplificação das matrizes:
+        a0 = m + m1 + m2
+        a1 = l1*(m1+2*m2)
+        a2 = m2*l2
+        a3 = m1*l1**2 +J1+4*m2*l1**2
+        a4 = 2*m2*l2*l1
+        a5 = m2*l2**2+J2
+
         A01 = J1*J2*(m+m1+m2)+J1*l2*l2*m2*(m + m1)+J2*l1*l1*(m*m1+4*m*m2+m1*m2)
         A02 = m*l1*l1*l2*l2*m1*m2
         A0 = A01 + A02
@@ -68,7 +75,7 @@ class DadoSuporteDpi:
         self.constantes = {'A01':A01,'A02':A02,'A0':A0,'A1':A1,'A2':A2,'A3':A3,'A4':A4,'A5':A5,'A6':A6,\
             'A7':A7,'A8':A8,'B1':B1,'B2':B2,'B3':B3, 'm':m, 'm1':m1, 'm2':m2, 'g':g, 'l1':l1, 'l2':l2,\
             'J1':J1, 'J2':J2, 'f0':f0, 'f1':f1, 'f2':f2, 'saidas':saidas,'trajetoria':trajetoria,\
-            'Ts':Ts, 'hz':hz, 'Q':Q, 'R':R, 'S':S, 'r':r, 'f':f,\
+            'Ts':Ts, 'hz':hz, 'Q':Q, 'R':R, 'S':S, 'r':r, 'f':f,'a0':a0,'a1':a1,'a2':a2,'a3':a3,'a4':a4, 'a5':a5,\
             'intervalo_de_tempo':intervalo_de_tempo}
 
         return None
@@ -92,23 +99,24 @@ class DadoSuporteDpi:
 
         elif trajetoria == 2: # Adiciona degrau
             x = np.zeros_like(xr) # Condicao inicial 0
-            x[xr < 2] = 0 # 0 de 0s até 2s 
-            x[xr >= 2] = 1 # 1 de 2 até 10
+            x[xr < 5] = 0 # 0 de 0s até 2s 
+            x[xr >= 5] = 1 # 1 de 2 até 10
             phi1_r = np.zeros_like(xr)
             phi2_r = np.zeros_like(xr)
 
         elif trajetoria == 3: # Onda quadrada
             x = np.zeros_like(xr)
-            x[xr < 15] = -1.5 # 0 de 0s até 5s 
+            x[xr < 5] = 1 # 0 de 0s até 5s 
             # Primeiro degrau
-            x[(xr >= 15) & (xr < 30)] = 1.5 # passa de para 3 
-            x[(xr >= 30) & (xr < 45)] = -1.5 # passa de para 3 
-            x[(xr >= 45) & (xr < 60)] = 1.5 # passa de para 3 
+            x[(xr >= 5) & (xr < 10)] = -1. # passa de para 3 
+            x[(xr >= 10) & (xr < 15)] = 1 # passa de para 3 
+            x[(xr >= 15) & (xr < 20)] = -1. # passa de para 3 
+            x[(xr >= 20) & (xr < 25)] = 1
             phi1_r = np.zeros_like(xr)
             phi2_r = np.zeros_like(xr)
 
         elif trajetoria == 4: # Trajetória oscilatória
-            x = 5*np.tanh(t-t[1]/2)
+            x = np.sin(t)#5*np.tanh(t-t[1]/2)
             phi1_r = np.zeros_like(xr)
             phi2_r = np.zeros_like(xr)
 
@@ -119,6 +127,7 @@ class DadoSuporteDpi:
             x[xr>=2.01] = 0 
             phi1_r = np.zeros_like(xr)
             phi2_r = np.zeros_like(xr)
+        
 
         return x,phi1_r,phi2_r
 
@@ -126,6 +135,21 @@ class DadoSuporteDpi:
         '''Esta função forma as matrizes do espaço de estados e as transforma na forma discreta'''
         Ts = self.constantes['Ts']
         #x_dot=self.constantes['x_dot']
+        a0 = 3#self.constantes['a0']
+        a1=0.15
+        a2=0.05
+        a3=0.01333
+        a4=0.005
+        a5=0.00333
+        #a1 = self.constantes['a1']
+        #a2 = self.constantes['a2']
+        #a3 = self.constantes['a3']
+        #a4 = self.constantes['a4']
+        #a5 = self.constantes['a5']
+        g = self.constantes['g']
+        f0 = self.constantes['f0']
+        f1 = self.constantes['f1']
+        f2 = self.constantes['f2']
 
         # Obtem as matrizes de espaço de estado para o controle
         A0 = self.constantes['A0']
@@ -144,15 +168,25 @@ class DadoSuporteDpi:
         B2 = self.constantes['B2']
         B3 = self.constantes['B3']
 
+        #A=np.array([[0, 0, 0, 1, 0, 0 ],[0, 0, 0, 0, 1, 0],[0, 0, 0, 0, 0, 1],
+        #    [0, -(A1*A3)/A0, -(A2*A6)/A0, 0, 0, 0],[0, -(A1*A4)/A0,-(A2*A7)/A0, 0, 0, 0],[0, -(A1*A5)/A0,-(A2*A8)/A0, 0, 0, 0]])
+        den_A = a0*a3*a5 - a0*a4**2 - a1**2 *a5 + 2*a1*a2*a4 - a2**2*a3 
         A=np.array([[0, 0, 0, 1, 0, 0 ],[0, 0, 0, 0, 1, 0],[0, 0, 0, 0, 0, 1],
-            [0, -(A1*A3)/A0, -(A2*A6)/A0, 0, 0, 0],[0, -(A1*A4)/A0,-(A2*A7)/A0, 0, 0, 0],[0, -(A1*A5)/A0,-(A2*A8)/A0, 0, 0, 0]])
-        B=np.array([[0],[0],[0],[B1/A0],[B2/A0],[B3/A0]])
+            [0, (a1*g*(-a1*a5+a2*a4))/(den_A), a2*g*(a1*a4-a2*a3)/(den_A), -f0*(a3*a5-a4**2)/(den_A), (f2*(a1*a4-a2*a3)-(f1+f2)*(-a1*a5+a2*a4))/(den_A), (-f2*(a1*a4-a2*a3)+f2*(-a1*a5+a2*a4))/(den_A)],
+            [0, (a1*g*(a0*a5-a2**2))/(den_A) ,a2*g*(-a0*a4+a1*a2)/(den_A) , -f0*(-a1*a5+a2*a4)/(den_A), (f2*(-a0*a4+a1*a2)-(f1+f2)*(a0*a5-a2**2))/(den_A), (-f2*(-a0*a4+a1*a2)+f2*(a0*a5-a2**2))/(den_A)],
+            [0, (a1*g*(-a0*a4+a1*a2))/(den_A) ,a2*g*(a0*a3-a1**2)/(den_A), -f0*(a1*a4-a2*a3)/(den_A), (f2*(a0*a3-a1**2)-(f1+f2)*(-a0*a4+a1*a2))/(den_A), (-f2*(a0*a3-a1**2)+f2*(-a1*a0+a1*a2))/(den_A)]])
+        
+        #B=np.array([[0],[0],[0],[B1/A0],[B2/A0],[B3/A0]])
+        B=np.array([[0],[0],[0],[-(a3*a5-a4**2)/den_A]
+                    ,[-(-a1*a5+a2*a4)/den_A]
+                    ,[-(a1*a4-a2*a3)/den_A]])
+        
         C=np.array([[1, 0, 0, 0, 0, 0],
                     [0, 1, 0, 0, 0, 0],
                     [0, 0, 1, 0, 0, 0]])
         D=0
         print(A)
-
+        #print(B)
         # Discretizar o sistema por avanço de Euler 
         Ad=np.identity(np.size(A,1))+Ts*A
         Bd=Ts*B
@@ -181,6 +215,7 @@ class DadoSuporteDpi:
         Q=self.constantes['Q']
         S=self.constantes['S']
         R=self.constantes['R']
+        #R1=self.constantes['R1']
 
         CQC=np.matmul(np.transpose(C_aug),Q)
         CQC=np.matmul(CQC,C_aug)
@@ -195,6 +230,7 @@ class DadoSuporteDpi:
         Qdb=np.zeros((np.size(CQC,0)*hz,np.size(CQC,1)*hz))
         Tdb=np.zeros((np.size(QC,0)*hz,np.size(QC,1)*hz))
         Rdb=np.zeros((np.size(R,0)*hz,np.size(R,1)*hz))
+        #Rdb1=np.zeros((np.size(R1,0)*hz,np.size(R1,1)*hz))
         Cdb=np.zeros((np.size(B_aug,0)*hz,np.size(B_aug,1)*hz))
         Adc=np.zeros((np.size(A_aug,0)*hz,np.size(A_aug,1)))
 
@@ -207,6 +243,7 @@ class DadoSuporteDpi:
                 Tdb[np.size(QC,0)*i:np.size(QC,0)*i+QC.shape[0],np.size(QC,1)*i:np.size(QC,1)*i+QC.shape[1]]=QC
 
             Rdb[np.size(R,0)*i:np.size(R,0)*i+R.shape[0],np.size(R,1)*i:np.size(R,1)*i+R.shape[1]]=R
+            #Rdb1[np.size(R1,0)*i:np.size(R1,0)*i+R1.shape[0],np.size(R1,1)*i:np.size(R1,1)*i+R1.shape[1]]=R1
 
             for j in range(0,hz):
                 if j<=i:
@@ -215,8 +252,11 @@ class DadoSuporteDpi:
             Adc[np.size(A_aug,0)*i:np.size(A_aug,0)*i+A_aug.shape[0],0:0+A_aug.shape[1]]=np.linalg.matrix_power(A_aug,i+1)
 
         Hdb=np.matmul(np.transpose(Cdb),Qdb)
+        #Hdb1 = np.matmul(np.transpose(Cdb),Qdb)
+        #Hdb=np.matmul(Hdb,Cdb)+Rdb
         Hdb=np.matmul(Hdb,Cdb)+Rdb
-
+        #Hdb1=np.matmul(Hdb1,Cdb)+Rdb1
+        
         temp=np.matmul(np.transpose(Adc),Qdb)
         temp=np.matmul(temp,Cdb)
 
@@ -234,6 +274,19 @@ class DadoSuporteDpi:
         A01 = self.constantes['A01']
         A02 = self.constantes['A02']
         A0 = self.constantes['A0']
+
+        a0 = self.constantes['a0']
+        a1 = self.constantes['a1']
+        a2 = self.constantes['a2']
+        a3 = self.constantes['a3']
+        a4 = self.constantes['a4']
+        a5 = self.constantes['a5']
+        g = self.constantes['g']
+        f0 = self.constantes['f0']
+        f1 = self.constantes['f1']
+        f2 = self.constantes['f2']
+
+        den_A = a0*a3*a5 - a0*a4**2 - a1**2 *a5 + 2*a1*a2*a4 - a2**2*a3 
 
         A1 = self.constantes['A1']
         A2 = self.constantes['A2']
@@ -266,9 +319,13 @@ class DadoSuporteDpi:
             Xp_dot = Xp_dot
             phi1_dot = phi1_dot
             phi2_dot = phi2_dot
-            Xp_dot_dot = -((A1*A3)/A0)*phi1 -((A2*A6)/A0)*phi2 + (B1/A0)*U1
-            phi1_dot_dot = -((A1*A4)/A0)*phi1 -((A2*A7)/A0)*phi2 + (B2/A0)*U1
-            phi2_dot_dot = -((A1*A5)/A0)*phi1 -((A2*A8)/A0)*phi2 + (B3/A0)*U1
+            #Xp_dot_dot = -((A1*A3)/A0)*phi1 -((A2*A6)/A0)*phi2 + (B1/A0)*U1
+            #phi1_dot_dot = -((A1*A4)/A0)*phi1 -((A2*A7)/A0)*phi2 + (B2/A0)*U1
+            #phi2_dot_dot = -((A1*A5)/A0)*phi1 -((A2*A8)/A0)*phi2 + (B3/A0)*U1
+
+            Xp_dot_dot = (a1*g*(-a1*a5+a2*a4))/(den_A)*phi1 +  a2*g*(a1*a4-a2*a3)/(den_A)*phi2 -f0*(a3*a5-a4**2)/(den_A)*Xp_dot + (f2*(a1*a4-a2*a3)-(f1+f2)*(-a1*a5+a2*a4))/(den_A)*phi1_dot -(f2*(a1*a4-a2*a3)+f2*(-a1*a5+a2*a4))/(den_A)*phi2_dot -(a3*a5-a4**2)/den_A*U1
+            phi1_dot_dot =(a1*g*(a0*a5-a2**2))/(den_A)*phi1 +  a2*g*(-a0*a4+a1*a2)/(den_A)*phi2 -f0*(-a1*a5+a2*a4)/(den_A)*Xp_dot + (f2*(-a0*a4+a1*a2)-(f1+f2)*(a0*a5-a2**2))/(den_A)*phi1_dot + (-f2*(-a0*a4+a1*a2)+f2*(a0*a5-a2**2))/(den_A)*phi2_dot -(-a1*a5+a2*a4)/den_A*U1
+            phi2_dot_dot =(a1*g*(-a0*a4+a1*a2))/(den_A)*phi1 + a2*g*(a0*a3-a1**2)/(den_A)*phi2 -f0*(a1*a4-a2*a3)/(den_A)*Xp_dot + (f2*(a0*a3-a1**2)-(f1+f2)*(-a0*a4+a1*a2))/(den_A)*phi1_dot + (-f2*(a0*a3-a1**2)+f2*(-a1*a0+a1*a2))/(den_A)*phi2_dot -(a1*a4-a2*a3)/den_A *U1
 
             # Atualiza os valores de estado com novas derivadas de estado
             Xp = Xp + Xp_dot*Ts/sub_loop
